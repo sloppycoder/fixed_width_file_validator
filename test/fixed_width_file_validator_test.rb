@@ -9,12 +9,12 @@ class FixedWidthFileValidatorTest < Minitest::Test
 
   def test_can_parse_sample_file
     validator = FixedWidthFileValidator::Validator.new('test/data/sample_rule_1.yml', :some_file_format)
-    assert validator.fields.count == 3
-    assert validator.validators.keys.include? :field_32
+    assert validator.parser.field_list.count == 3
 
     result = validator.validate('test/data/test_data_1.txt')
     assert result.count == 2
-    assert result[0][:validator] == 'unique' && result[1][:validator] == 'unique'
+    assert validator.non_unique_values.keys.include? :phone
+    assert result[0][:validation] == 'unique' && result[1][:validation] == 'unique'
   end
 
   def test_string_helper
