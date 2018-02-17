@@ -1,0 +1,23 @@
+defaults: &defaults
+  some_default_thing: true
+
+some_file_format:
+  <<: *defaults
+  validate:
+    width: 100
+  new_line_style: true
+  fields:
+    - name: name
+      width: 20
+      starts_at: 0
+      validate:
+        - not_blank
+        - "include?('LIN') ? left_justified : right_justified"
+    - name: phone
+      width: 12
+      validate:
+        - start_with?('60')
+        - unique
+    - width: 50
+      validate:
+        - include? r[:name]
