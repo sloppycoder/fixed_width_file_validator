@@ -8,11 +8,26 @@ GEM
   remote: https://rubygems.org/
   specs:
     byebug (10.0.0)
+    coderay (1.1.2)
+    ffi (1.9.21)
+    ffi (1.9.21-java)
     fixed_width_file_parser (1.0.1)
+    method_source (0.9.0)
     minitest (5.11.3)
+    pry (0.11.3-java)
+      coderay (~> 1.1.0)
+      method_source (~> 0.9.0)
+      spoon (~> 0.0)
+    pry-debugger-jruby (1.2.0-java)
+      pry (>= 0.10, < 0.12)
+      ruby-debug-base (~> 0.10.4)
     rake (10.5.0)
+    ruby-debug-base (0.10.6-java)
+    spoon (0.0.6)
+      ffi
 
 PLATFORMS
+  java
   ruby
 
 DEPENDENCIES
@@ -20,6 +35,8 @@ DEPENDENCIES
   byebug
   fixed_width_file_validator!
   minitest (~> 5.0)
+  pry
+  pry-debugger-jruby
   rake (~> 10.0)
 
 BUNDLED WITH
