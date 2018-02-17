@@ -19,7 +19,7 @@ Or install it yourself as:
 
 ## Usage
 
-See [sameple configuration for details](blob/master/test/data/sample_rule_1.yml)
+See [sameple configuration for details](test/data/sample_rule_1.yml)
 
 ## Contributing
 
