@@ -24,9 +24,37 @@ module FixedWidthFileValidator
       size == w
     end
 
+    def date_time(format = 'yyyymmddhhmmss')
+      true
+    end
+
+    def date(format = 'yyyymmdd')
+      true
+    end
+
+    def date_or_blank(format = 'yyyymmdd')
+      blank || date(format)
+    end
+
+    def positive
+      self.to_i > 0
+    end
+    
     def numeric(precision = 0)
       m = /^(\d*)\.?(\d*)$/.match(self)
       m && m[1] && m[2].size == precision
+    end
+
+    def numeric_or_blank(precision = 0)
+      blank || numeric(precision)
+    end
+
+    def inside(some_list)
+      some_list.include? self
+    end
+
+    def inside_or_blank(some_list)
+      blank || inside(some_list)
     end
 
     def left_justified
@@ -35,6 +63,10 @@ module FixedWidthFileValidator
 
     def right_justified
       rindex(strip) == (length - strip.length)
+    end
+
+    def currency_code
+      true
     end
   end
 
@@ -93,11 +125,19 @@ module FixedWidthFileValidator
 
     def parser_params(field_name)
       f = rules[field_name]
-      { name: field_name, position: (f[:start_column]..f[:end_column]) }
+      # in config file column starts with 1 but when parsing line begins at 0
+      { name: field_name, position: (f[:start_column] - 1..f[:end_column] - 1) }
     end
 
     def config_for_format(file_format)
-      symbolize(YAML.safe_load(@config, [], [], true))[file_format]
+      all_configs = symbolize(YAML.safe_load(@config, [], [], true))
+      common_fields = all_configs[:common][:fields]
+      format_config = all_configs[file_format.to_sym]
+      format_fields = format_config[:fields]
+      common_fields.each do |field|
+        format_fields << field if format_fields.select { |f| f[:name] == field[:name] }.empty?
+      end
+      format_config
     end
 
     def symbolize(obj)
@@ -162,8 +202,12 @@ module FixedWidthFileValidator
       return false if value.nil?
 
       value.extend(StringHelper)
-      if validator == 'unique'
-        !non_unique_values[field_name].include?(value)
+      if validator.size < 2
+        false
+      elsif validator[0] == "'" && validator[-1] == "'" # single quoted values
+        value == validator[1..-2]
+      elsif validator == 'unique'
+        ! non_unique_values[field_name].include?(value)
       elsif value.respond_to?(validator)
         value.public_send(validator)
       else

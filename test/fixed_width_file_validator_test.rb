@@ -1,6 +1,6 @@
 # rubocop:disable Metrics/AbcSize
 
-require 'test_helper'
+require_relative 'test_helper'
 
 class FixedWidthFileValidatorTest < Minitest::Test
   def test_that_it_has_a_version_number
@@ -27,6 +27,7 @@ class FixedWidthFileValidatorTest < Minitest::Test
     assert t('1000.').numeric
     refute t('1000.11').numeric
     assert t('1000.11').numeric(2)
+    refute t('0000').numeric
     assert t('').width(0)
     assert t('ABCC DEF').width(8)
   end

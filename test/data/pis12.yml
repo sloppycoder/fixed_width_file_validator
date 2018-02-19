@@ -1,0 +1,255 @@
+common:
+  fields:
+  - name: workflow
+    width: 16
+    starts_at: 2
+    validate:
+    - '???file name logic?'
+  - name: record_type
+    width: 8
+    starts_at: 18
+    validate:
+    - 'PIS12'
+  - name: data_specification_version
+    width: 5
+    starts_at: 26
+    validate:
+    - '1.2'
+  - name: client_id_from_header
+    width: 16
+    starts_at: 31
+    validate:
+    - '???country host based logic'
+  - name: record_creation_date
+    width: 8
+    starts_at: 47
+    validate:
+    - Date combied with time?
+  - name: record_creation_time
+    width: 6
+    starts_at: 55
+    validate:
+    - Time
+  - name: gmt_offset
+    width: 6
+    starts_at: 64
+    validate:
+    - '+8.00'
+  - name: customer_id_from_header
+    width: 20
+    starts_at: 70
+    validate:
+    - " slice(0,2) == r.country "
+    - " slice(2,100).numeric "
+  - name: customer_acct_number
+    width: 40
+    starts_at: 90
+    validate:
+    - " slice(0,2) == r.country "
+    - " slice(2,100).numeric "
+  - name: external_transaction_id
+    width: 32
+    starts_at: 130
+    validate:
+    - non_blank
+    - unique
+  - name: pan
+    width: 19
+    starts_at: 162
+    validate:
+    - " size > 16 "
+  - name: type
+    width: 1
+    starts_at: 181
+    validate:
+    - '??? country based'
+  - name: sub_type
+    width: 2
+    starts_at: 182
+    validate:
+    - '??? country based'
+  - name: category
+    width: 1
+    starts_at: 184
+    validate:
+    - '??? country based'
+  - name: association
+    width: 1
+    starts_at: 185
+    validate:
+    - '??? country based'
+  - name: pan_open_date
+    width: 8
+    starts_at: 186
+    validate:
+    - date_or_blank
+  - name: member_since_date
+    width: 8
+    starts_at: 194
+    validate:
+    - date_or_blank
+  - name: issuing_country
+    width: 3
+    starts_at: 202
+    validate:
+    - " size == 3 "
+  - name: cardholder_city
+    width: 40
+    starts_at: 205
+    validate:
+    - '??? some host blank some not'
+  - name: cardholder_state_province
+    width: 5
+    starts_at: 245
+    validate:
+    - '??? some host blank some not'
+  - name: cardholder_country_code
+    width: 3
+    starts_at: 260
+    validate:
+    - '??? some host not blank some are blank'
+  - name: number_of_payment_ids
+    width: 3
+    starts_at: 263
+    validate:
+    - numeric
+    - positive
+  - name: status
+    width: 2
+    starts_at: 296
+    validate:
+    - '??? country specific list'
+  - name: status_date
+    width: 8
+    starts_at: 298
+    validate:
+    - date
+  - name: pin_length
+    width: 2
+    starts_at: 306
+    validate:
+    - '?? country spefici values'
+  - name: pin_set_date
+    width: 8
+    starts_at: 308
+    validate:
+    - '??? country specific date or blank'
+  - name: pin_type
+    width: 1
+    starts_at: 316
+    validate:
+    - '??? country spefic list or blank'
+  - name: active_indicator
+    width: 1
+    starts_at: 317
+    validate:
+    - ' Y or Y/N'
+  - name: emboss_name
+    width: 40
+    starts_at: 318
+    validate:
+    - non_blank
+  - name: expiration_date
+    width: 8
+    starts_at: 358
+    validate:
+    - date_or_blank
+  - name: emboss_date
+    width: 8
+    starts_at: 366
+    validate:
+    - date_or_blank
+  - name: plastic_issue_type
+    width: 1
+    starts_at: 374
+    validate:
+    - '?? country spefici blank or list'
+  - name: incentive
+    width: 1
+    starts_at: 375
+    validate:
+    - 'N or NC'
+  - name: currency_code
+    width: 3
+    starts_at: 376
+    validate:
+    - currency_code
+  - name: currency_conversion_rate
+    width: 13
+    starts_at: 379
+    validate:
+    - '??? country speicif funny format'
+  - name: credit_limit
+    width: 10
+    starts_at: 392
+    validate:
+    - numeric_or_blank
+  - name: daily_pos_limit
+    width: 10
+    starts_at: 412
+    validate:
+    - '??? country specific, numeric or blank'
+  - name: daily_cash_limit
+    width: 10
+    starts_at: 422
+    validate:
+    - '??? country specific, or hard number or blank'
+  - name: cashback_limit_mode
+    width: 1
+    starts_at: 432
+    validate:
+    - '??? 1 digit or country spefici list'
+  - name: media_type
+    width: 1
+    starts_at: 433
+    validate:
+    - '??? country spefici list'
+  - name: aip_static
+    width: 1
+    starts_at: 434
+    validate:
+    - '??? Y/N or depends on media type'
+  - name: aip_dynamic
+    width: 1
+    starts_at: 435
+    validate:
+    - '??? Y/N or depends on media type'
+  - name: aip_verify
+    width: 1
+    starts_at: 436
+    validate:
+    - '??? Y/N or depends on media type'
+  - name: aip_risk
+    width: 1
+    starts_at: 437
+    validate:
+    - '??? Y/N or depends on media type'
+  - name: aip_issuer_authentication
+    width: 1
+    starts_at: 438
+    validate:
+    - '??? country specific Y/N/blank'
+  - name: aip_combined
+    width: 1
+    starts_at: 439
+    validate:
+    - '??? country specific Y/N/blank'
+  - name: chip_specification
+    width: 1
+    starts_at: 440
+    validate:
+    - '??? country specific V/M/blank'
+  - name: chip_spec_version
+    width: 3
+    starts_at: 441
+    validate:
+    - '??? country specific blank, 200 or 400'
+
+hogan:
+  setting: 1
+  fields:
+  - name: chip_spec_version
+    width: 3
+    starts_at: 442
+    validate:
+    - '??? country specific blank, 200 or 400'

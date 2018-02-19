@@ -9,7 +9,7 @@ some_file_format:
   fields:
     - name: name
       width: 20
-      starts_at: 0
+      starts_at: 1
       validate:
         - not_blank
         - "include?('LIN') ? left_justified : right_justified"
