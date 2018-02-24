@@ -1,5 +1,4 @@
 require 'fixed_width_file_validator/version'
-require 'erb'
 require 'yaml'
 require 'date'
 require 'time'
@@ -85,12 +84,12 @@ module FixedWidthFileValidator
   class Rule
     attr_reader :parser_field_list, :unique_fields, :rules
 
-    def initialize(rule_file, file_format, bindings = binding)
+    def initialize(rule_file, file_format)
       @column = 0
-      @config = ERB.new(rule_file).result(bindings)
       @rules = {}
       @parser_field_list = []
       @unique_fields = []
+      @config = rule_file
 
       parse_rules file_format
       find_unique_fields
@@ -169,8 +168,9 @@ module FixedWidthFileValidator
 
     def parse_line(line)
       record = {}
+      utf8_line = line.encode('UTF-8', 'binary', invalid: :replace, undef: :replace)
       field_list.each do |field|
-        record[field[:name].to_sym] = line[field[:position]].nil? ? nil : line[field[:position]].strip
+        record[field[:name].to_sym] = utf8_line[field[:position]].nil? ? nil : utf8_line[field[:position]].strip
       end
       record
     end
@@ -217,8 +217,9 @@ module FixedWidthFileValidator
       value.extend(StringHelper)
       if validator.size < 2
         false
-      elsif validator[0] == "'" && validator[-1] == "'" # single quoted values
-        value == validator[1..-2]
+      elsif validator[0] == "{" && validator[-1] == "}"
+        code = "lambda { |r| #{validator[1..-2]} }"
+        value.instance_eval(code).call(record)
       elsif validator[0] == '[' && validator[-1] == ']' # list of strings
         eval(validator).include? value
       elsif validator == 'unique'
@@ -226,8 +227,7 @@ module FixedWidthFileValidator
       elsif value.respond_to?(validator)
         value.public_send(validator)
       else
-        code = "lambda { |r| #{validator} }"
-        value.instance_eval(code).call(record)
+        value == validator
       end
     end
 
@@ -260,18 +260,18 @@ module FixedWidthFileValidator
 
     def each_line_in_data_file
       file = File.open(@data_file_path)
-      current_row = 1
+      @current_row = 1
 
       until file.eof?
         line = file.readline
         if line.chomp.strip.empty?
-          current_row += 1
+          @current_row += 1
           next
         end
 
         yield line
 
-        current_row += 1
+        @current_row += 1
       end
     ensure
       file.close
@@ -285,7 +285,7 @@ module FixedWidthFileValidator
         error_field_value: error_field_value,
         validation: validation,
         error: error,
-        row_number: current_row,
+        row_number: self.current_row,
         source_line: line
       }
     end

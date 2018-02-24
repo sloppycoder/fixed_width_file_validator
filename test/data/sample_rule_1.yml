@@ -1,8 +1,4 @@
-defaults: &defaults
-  some_default_thing: true
-
 some_file_format:
-  <<: *defaults
   validate:
     width: 100
   new_line_style: true
@@ -12,12 +8,12 @@ some_file_format:
       starts_at: 1
       validate:
         - not_blank
-        - "include?('LIN') ? left_justified : right_justified"
+        - "{ include?('LIN') ? left_justified : right_justified }"
     - name: phone
       width: 12
       validate:
-        - start_with?('60')
+        - "{ start_with?('60') }"
         - unique
     - width: 50
       validate:
-        - include? r[:name]
+        - "{ include? r[:name] }"
