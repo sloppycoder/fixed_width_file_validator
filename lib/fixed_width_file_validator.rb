@@ -1,6 +1,8 @@
 require 'fixed_width_file_validator/version'
 require 'erb'
 require 'yaml'
+require 'date'
+require 'time'
 
 module FixedWidthFileValidator
   module StringHelper
@@ -24,22 +26,40 @@ module FixedWidthFileValidator
       size == w
     end
 
-    def date_time(format = 'yyyymmddhhmmss')
-      true
+    def date_time(format = '%Y%m%d%H%M%S')
+      Time.strptime(self, format)
+      length == 14
+    rescue ArgumentError
+      false
     end
 
-    def date(format = 'yyyymmdd')
-      true
+    def date(format = '%Y%m%d')
+      Date.strptime(self, format)
+      length == 8
+    rescue ArgumentError
+      false
     end
 
-    def date_or_blank(format = 'yyyymmdd')
+    def time
+      return false unless length == 6
+      h = self[0..1].to_i
+      m = self[2..3].to_i
+      s = self[4..5].to_i
+      h >= 0 && h < 24 && m >= 0 && m < 60 && s >= 0 && s < 60
+    end
+
+    def time_or_blank
+      blank || time
+    end
+
+    def date_or_blank(format = '%Y%m%d')
       blank || date(format)
     end
 
     def positive
-      self.to_i > 0
+      to_i > 0
     end
-    
+
     def numeric(precision = 0)
       m = /^(\d*)\.?(\d*)$/.match(self)
       m && m[1] && m[2].size == precision
@@ -47,14 +67,6 @@ module FixedWidthFileValidator
 
     def numeric_or_blank(precision = 0)
       blank || numeric(precision)
-    end
-
-    def inside(some_list)
-      some_list.include? self
-    end
-
-    def inside_or_blank(some_list)
-      blank || inside(some_list)
     end
 
     def left_justified
@@ -131,7 +143,8 @@ module FixedWidthFileValidator
 
     def config_for_format(file_format)
       all_configs = symbolize(YAML.safe_load(@config, [], [], true))
-      common_fields = all_configs[:common][:fields]
+      common_config = all_configs[:common]
+      common_fields = common_config ? common_config[:fields] : []
       format_config = all_configs[file_format.to_sym]
       format_fields = format_config[:fields]
       common_fields.each do |field|
@@ -206,8 +219,10 @@ module FixedWidthFileValidator
         false
       elsif validator[0] == "'" && validator[-1] == "'" # single quoted values
         value == validator[1..-2]
+      elsif validator[0] == '[' && validator[-1] == ']' # list of strings
+        eval(validator).include? value
       elsif validator == 'unique'
-        ! non_unique_values[field_name].include?(value)
+        !non_unique_values[field_name].include?(value)
       elsif value.respond_to?(validator)
         value.public_send(validator)
       else

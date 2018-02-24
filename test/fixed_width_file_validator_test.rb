@@ -19,17 +19,36 @@ class FixedWidthFileValidatorTest < Minitest::Test
 
   def test_string_helper
     assert t('').any
+
     assert t('').blank
     refute t('').not_blank
+
     assert t('   ABC DEF ABC DEF').right_justified
     assert t('ABC DEF ABC DEF    ').left_justified
+
     assert t('1000').numeric
     assert t('1000.').numeric
     refute t('1000.11').numeric
     assert t('1000.11').numeric(2)
-    refute t('0000').numeric
+    assert t('0000').numeric
+
     assert t('').width(0)
     assert t('ABCC DEF').width(8)
+
+    assert t('').numeric_or_blank
+    refute t('X').numeric_or_blank
+
+    assert t('20100101').date
+    refute t('20102301').date
+    refute t('2300').date
+
+    assert t('000000').time
+    assert t('120259').time
+    refute t('120260').time
+
+    assert t('20100101010101').date_time
+    refute t('20102301260101').date_time
+    refute t('2010230126010112').date_time
   end
 
   private
