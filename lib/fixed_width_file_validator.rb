@@ -82,7 +82,7 @@ module FixedWidthFileValidator
   end
 
   class Rule
-    attr_reader :parser_field_list, :unique_fields, :rules
+    attr_reader :parser_field_list, :unique_fields, :rules, :file_settings
 
     def initialize(rule_file, file_format)
       @column = 0
@@ -90,6 +90,7 @@ module FixedWidthFileValidator
       @parser_field_list = []
       @unique_fields = []
       @config = rule_file
+      @file_settings = {}
 
       parse_rules file_format
       find_unique_fields
@@ -102,13 +103,17 @@ module FixedWidthFileValidator
     private
 
     def parse_rules(file_format)
-      config_for_format(file_format)[:fields].each do |field_config|
+      puts '...parse rules ...'
+      format_config = config_for_format(file_format)
+      format_config[:fields].each do |field_config|
         field_rule = parse_field_rules(field_config)
         key = field_rule[:field_name].to_sym
         rules[key] = field_rule
         parser_field_list << parser_params(key)
         @column = rules[key][:end_column] + 1
       end
+      @file_settings = { skip_top_lines: format_config[:skip_top_lines] || 0,
+                         skip_bottom_lines: format_config[:skip_bottom_lines] || 0 }
     end
 
     def parse_field_rules(field_rule)
@@ -160,10 +165,11 @@ module FixedWidthFileValidator
   end
 
   class Parser
-    attr_reader :field_list
+    attr_reader :field_list, :encoding
 
-    def initialize(field_list)
+    def initialize(field_list, encoding)
       @field_list = field_list
+      @encoding = encoding
     end
 
     def parse_line(line)
@@ -181,8 +187,11 @@ module FixedWidthFileValidator
 
     def initialize(rule_file, file_format)
       @rule = Rule.new(File.read(rule_file), file_format)
-      @parser = Parser.new(rule.parser_field_list)
+      encoding = @rule.file_settings[:encoding] || 'ISO-8859-1'
+      @parser = Parser.new(rule.parser_field_list, encoding)
       @current_row = 0
+      @skip_top_lines = @rule.file_settings[:skip_top_lines]
+      @skip_bottom_lines = @rule.file_settings[:skip_bottom_lines]
     end
 
     def validate(data_file)
@@ -205,7 +214,9 @@ module FixedWidthFileValidator
         end
       end
 
-      errors
+      # filter out the error from bottom lines we should ignore
+      # at this point current_row should be at last row + 1
+      errors.select { |err| err[:row_number] < @current_row - @skip_bottom_lines }
     end
 
     private
@@ -270,7 +281,8 @@ module FixedWidthFileValidator
 
       until file.eof?
         line = file.readline
-        if line.chomp.strip.empty?
+
+        if @current_row <= @skip_top_lines || line.chomp.strip.empty?
           @current_row += 1
           next
         end
