@@ -103,7 +103,6 @@ module FixedWidthFileValidator
     private
 
     def parse_rules(file_format)
-      puts '...parse rules ...'
       format_config = config_for_format(file_format)
       format_config[:fields].each do |field_config|
         field_rule = parse_field_rules(field_config)
@@ -147,13 +146,19 @@ module FixedWidthFileValidator
 
     def config_for_format(file_format)
       all_configs = symbolize(YAML.safe_load(@config, [], [], true))
-      common_config = all_configs[:common]
-      common_fields = common_config ? common_config[:fields] : []
       format_config = all_configs[file_format.to_sym]
       format_fields = format_config[:fields]
-      common_fields.each do |field|
-        format_fields << field if format_fields.select { |f| f[:name] == field[:name] }.empty?
+      inherit_format = format_config[:inherit_from]
+
+      if inherit_format
+        inherit_config = all_configs[inherit_format.to_sym]
+        inheirt_fields = inherit_config ? inherit_config[:fields] : []
+
+        inheirt_fields.each do |field|
+          format_fields << field if format_fields.select { |f| f[:name] == field[:name] }.empty?
+        end
       end
+      
       format_config
     end
 
@@ -251,12 +256,15 @@ module FixedWidthFileValidator
     def find_non_unique_values
       return if rule.unique_fields.empty?
 
+      puts 'scanning for unique values'
       lookup_hash = build_unique_value_lookup_hash
+      puts 'scan done'
 
       result = {}
       rule.unique_fields.each do |field_name|
         result[field_name] = lookup_hash[field_name].select { |_k, v| v.count > 1 }
       end
+      puts 'done'
       result
     end
 
@@ -287,6 +295,8 @@ module FixedWidthFileValidator
           next
         end
 
+        puts "#{Time.now} - #{@current_row}" if @current_row % 1000 == 0
+        
         yield line
 
         @current_row += 1

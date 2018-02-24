@@ -110,6 +110,7 @@ common:
 tandem:
   skip_top_lines: 1
   skip_bottom_lines: 1
+  inherit_from: common
   fields:
   - name: type
     width: 1
