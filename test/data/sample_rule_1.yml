@@ -17,3 +17,11 @@ some_file_format:
     - width: 50
       validate:
         - "{ include? r[:name] }"
+    - width: 3
+      validate:
+        - 'XYZ'
+    - width: 2
+      validate:
+        - "['AA', 'BB', 'CC']"
+
+
