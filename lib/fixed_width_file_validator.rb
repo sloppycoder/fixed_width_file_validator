@@ -215,17 +215,23 @@ module FixedWidthFileValidator
       return false if value.nil?
 
       value.extend(StringHelper)
-      if validator.size < 2
-        false
-      elsif validator[0] == "{" && validator[-1] == "}"
+
+      keyword = validator.split(' ').first
+      if validator[0] == '{' && validator[-1] == '}'
         code = "lambda { |r| #{validator[1..-2]} }"
         value.instance_eval(code).call(record)
       elsif validator[0] == '[' && validator[-1] == ']' # list of strings
         eval(validator).include? value
       elsif validator == 'unique'
         !non_unique_values[field_name].include?(value)
-      elsif value.respond_to?(validator)
-        value.public_send(validator)
+      elsif value.respond_to?(keyword)
+        if validator.strip != keyword
+          start_of_args = validator.index(' ') + 1
+          args = eval("[ #{validator[start_of_args..200]} ]")
+          value.public_send(keyword, *args)
+        else
+          value.public_send(validator)
+        end
       else
         value == validator
       end
@@ -285,7 +291,7 @@ module FixedWidthFileValidator
         error_field_value: error_field_value,
         validation: validation,
         error: error,
-        row_number: self.current_row,
+        row_number: current_row,
         source_line: line
       }
     end
