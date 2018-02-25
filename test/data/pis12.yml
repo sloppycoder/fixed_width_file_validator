@@ -47,8 +47,7 @@ common:
     starts_at: 90
     validate:
     - "{ slice(0..1) == 'TW' }"
-    - "{ slice(2..100).numeric }"
-    - "{ slice(2..100).length == 16 }"
+    - "{ slice(2..100).numeric(16) }"
   - name: external_transaction_id
     width: 32
     starts_at: 130

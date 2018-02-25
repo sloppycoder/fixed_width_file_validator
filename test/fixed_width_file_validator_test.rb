@@ -27,11 +27,17 @@ class FixedWidthFileValidatorTest < Minitest::Test
     assert t('   ABC DEF ABC DEF').right_justified
     assert t('ABC DEF ABC DEF    ').left_justified
 
+    # numeric(max_length=32, precision=0, min_length=1)
     assert t('1000').numeric
+    refute t('1000').numeric(3)
     assert t('1000.').numeric
+    assert t('1000.').numeric(5,0,4)
+    refute t('1000.').numeric(3,0,2)
     refute t('1000.11').numeric
-    assert t('1000.11').numeric(2)
+    assert t('1000.11').numeric(4,2)
     assert t('0000').numeric
+    refute t('').numeric
+    refute t('abc').numeric
 
     assert t('').width(0)
     assert t('ABCC DEF').width(8)

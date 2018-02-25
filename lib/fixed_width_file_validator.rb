@@ -61,13 +61,13 @@ module FixedWidthFileValidator
       to_i > 0
     end
 
-    def numeric(precision = 0)
+    def numeric(max=32, precision=0, min=1)
       m = /^(\d*)\.?(\d*)$/.match(self)
-      m && m[1] && m[2].size == precision
+      m && m[1] && (min..max).include?(m[1].size) && m[2].size == precision
     end
 
-    def numeric_or_blank(precision = 0)
-      blank || numeric(precision)
+    def numeric_or_blank(max=32, precision=0, min=1)
+      blank || numeric(max, precision, min)
     end
 
     def left_justified
@@ -76,10 +76,6 @@ module FixedWidthFileValidator
 
     def right_justified
       rindex(strip) == (length - strip.length)
-    end
-
-    def currency_code
-      true
     end
   end
 
