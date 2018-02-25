@@ -3,9 +3,7 @@ require 'yaml'
 require 'date'
 require 'time'
 
-
 module FixedWidthFileValidator
-
   module StringHelper
     def any
       true
@@ -58,15 +56,15 @@ module FixedWidthFileValidator
     end
 
     def positive
-      to_i > 0
+      to_i.positive?
     end
 
-    def numeric(max=32, precision=0, min=1)
+    def numeric(max = 32, precision = 0, min = 1)
       m = /^(\d*)\.?(\d*)$/.match(self)
-      m && m[1] && (min..max).include?(m[1].size) && m[2].size == precision
+      m && m[1] && (min..max).cover?(m[1].size) && m[2].size == precision
     end
 
-    def numeric_or_blank(max=32, precision=0, min=1)
+    def numeric_or_blank(max = 32, precision = 0, min = 1)
       blank || numeric(max, precision, min)
     end
 
@@ -115,7 +113,7 @@ module FixedWidthFileValidator
 
     def parse_field_rules(field_rule)
       width = field_rule[:width]
-      return unless width && width > 0
+      return unless width&.positive?
 
       field_name = field_rule[:name] || "field_#{@column}"
       start_column = field_rule[:starts_at] || @column
@@ -156,7 +154,7 @@ module FixedWidthFileValidator
           format_fields << field if format_fields.select { |f| f[:name] == field[:name] }.empty?
         end
       end
-      
+
       format_config
     end
 
@@ -291,7 +289,7 @@ module FixedWidthFileValidator
         end
 
         # puts "#{Time.now} - #{@current_row}" if @current_row % 1000 == 0
-        
+
         yield line
 
         @current_row += 1

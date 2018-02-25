@@ -31,10 +31,10 @@ class FixedWidthFileValidatorTest < Minitest::Test
     assert t('1000').numeric
     refute t('1000').numeric(3)
     assert t('1000.').numeric
-    assert t('1000.').numeric(5,0,4)
-    refute t('1000.').numeric(3,0,2)
+    assert t('1000.').numeric(5, 0, 4)
+    refute t('1000.').numeric(3, 0, 2)
     refute t('1000.11').numeric
-    assert t('1000.11').numeric(4,2)
+    assert t('1000.11').numeric(4, 2)
     assert t('0000').numeric
     refute t('').numeric
     refute t('abc').numeric

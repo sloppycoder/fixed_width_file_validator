@@ -16,6 +16,7 @@ class RuleParserTest < Minitest::Test
   end
 
   def test_can_parse_c400_sample_file
+    skip
     puts "Start: #{Time.now}"
     validator = FixedWidthFileValidator::Validator.new('test/data/pis12.yml', :c400)
     result = validator.validate('/Users/lee/tmp/CRTRAN25AEC40012052017193043.txt')
@@ -23,5 +24,4 @@ class RuleParserTest < Minitest::Test
 
     puts result.count
   end
-
 end
