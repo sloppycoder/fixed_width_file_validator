@@ -41,13 +41,13 @@ common:
     starts_at: 70
     validate:
     - "{ slice(0..1) == 'TW' }"
-    # - "{ slice(2..100).numeric }"
+    - "{ slice(2..100).numeric }"
   - name: customer_acct_number
     width: 40
     starts_at: 90
     validate:
     - "{ slice(0..1) == 'TW' }"
-    # - "{ slice(2..100).numeric }"
+    - "{ slice(2..100).numeric }"
     - "{ slice(2..100).length == 16 }"
   - name: external_transaction_id
     width: 32
@@ -252,3 +252,149 @@ tandem:
     starts_at: 441
     validate:
     - '210'
+
+c400:
+  skip_top_lines: 1
+  skip_bottom_lines: 1
+  inherit_from: common
+  fields:
+  - name: type
+    width: 1
+    starts_at: 181
+    validate:
+    - "['C', 'P']"
+  - name: sub_type
+    width: 2
+    starts_at: 182
+    validate:
+    - "'O'"
+  - name: category
+    width: 1
+    starts_at: 184
+    validate:
+    - "['P', 'G', 'S']"
+  - name: association
+    width: 1
+    starts_at: 185
+    validate:
+    - "['V', 'M', 'O']"
+  - name: issuing_country
+    width: 3
+    starts_at: 202
+    validate:
+    - numeric
+  - name: cardholder_city
+    width: 40
+    starts_at: 205
+    validate:
+    - any
+  - name: cardholder_state_province
+    width: 5
+    starts_at: 245
+    validate:
+    - any
+  - name: cardholder_country_code
+    width: 3
+    starts_at: 260
+    validate:
+    - any
+  - name: status
+    width: 2
+    starts_at: 296
+    validate:
+    - "['00', '11', '40', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32']"
+  - name: pin_length
+    width: 2
+    starts_at: 306
+    validate:
+    - '04'
+  - name: pin_set_date
+    width: 8
+    starts_at: 308
+    validate:
+    - blank
+  - name: pin_type
+    width: 1
+    starts_at: 316
+    validate:
+    - "['I', 'C']"
+  - name: active_indicator
+    width: 1
+    starts_at: 317
+    validate:
+    - "['Y', 'N']"
+  - name: plastic_issue_type
+    width: 1
+    starts_at: 374
+    validate:
+    - blank
+  - name: incentive
+    width: 1
+    starts_at: 375
+    validate:
+    - "'N'"
+  - name: currency_code
+    width: 3
+    starts_at: 376
+    validate:
+    - numeric 
+  - name: currency_conversion_rate
+    width: 13
+    starts_at: 379
+    validate:
+    - "['000001.000000', '1.000000']"
+  - name: daily_cash_limit
+    width: 10
+    starts_at: 422
+    validate:
+    - blank
+  - name: cashback_limit_mode
+    width: 1
+    starts_at: 432
+    validate:
+    - blank
+  - name: media_type
+    width: 1
+    starts_at: 433
+    validate:
+    - blank
+  - name: aip_static
+    width: 1
+    starts_at: 434
+    validate:
+    - 'N'
+  - name: aip_dynamic
+    width: 1
+    starts_at: 435
+    validate:
+    - 'Y'
+  - name: aip_verify
+    width: 1
+    starts_at: 436
+    validate:
+    - 'N'
+  - name: aip_risk
+    width: 1
+    starts_at: 437
+    validate:
+    - 'N'
+  - name: aip_issuer_authentication
+    width: 1
+    starts_at: 438
+    validate:
+    - 'N'
+  - name: aip_combined
+    width: 1
+    starts_at: 439
+    validate:
+    - 'N'
+  - name: chip_specification
+    width: 1
+    starts_at: 440
+    validate:
+    - 'M'
+  - name: chip_spec_version
+    width: 3
+    starts_at: 441
+    validate:
+    - '400'

@@ -3,7 +3,9 @@ require 'yaml'
 require 'date'
 require 'time'
 
+
 module FixedWidthFileValidator
+
   module StringHelper
     def any
       true
@@ -256,15 +258,12 @@ module FixedWidthFileValidator
     def find_non_unique_values
       return if rule.unique_fields.empty?
 
-      puts 'scanning for unique values'
       lookup_hash = build_unique_value_lookup_hash
-      puts 'scan done'
 
       result = {}
       rule.unique_fields.each do |field_name|
         result[field_name] = lookup_hash[field_name].select { |_k, v| v.count > 1 }
       end
-      puts 'done'
       result
     end
 
@@ -295,7 +294,7 @@ module FixedWidthFileValidator
           next
         end
 
-        puts "#{Time.now} - #{@current_row}" if @current_row % 1000 == 0
+        # puts "#{Time.now} - #{@current_row}" if @current_row % 1000 == 0
         
         yield line
 
@@ -318,4 +317,8 @@ module FixedWidthFileValidator
       }
     end
   end
+end
+
+class String
+  include FixedWidthFileValidator::StringHelper
 end
