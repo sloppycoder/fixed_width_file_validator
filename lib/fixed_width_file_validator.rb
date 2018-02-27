@@ -2,6 +2,7 @@ require 'fixed_width_file_validator/version'
 require 'yaml'
 require 'date'
 require 'time'
+require 'ripper'
 
 module FixedWidthFileValidator
   module StringHelper
@@ -228,24 +229,22 @@ module FixedWidthFileValidator
 
       value.extend(StringHelper)
 
-      keyword = validator.is_a?(String) ? validator.split(' ').first : ''
-      if validator[0] == '{' && validator[-1] == '}'
-        code = "lambda { |r| #{validator[1..-2]} }"
-        value.instance_eval(code).call(record)
+      if validator.is_a? String
+        keyword = Ripper.tokenize(validator).first
+
+        if validator == 'unique'
+          !non_unique_values[field_name].include?(value)
+        elsif keyword == '^' ||  value.respond_to?(keyword)
+          validator = validator[1..500] if keyword == '^'
+          code = "lambda { |r| #{validator} }"
+          value.instance_eval(code).call(record)
+        else
+          value == validator
+        end
       elsif validator.is_a? Array
         validator.include? value
-      elsif validator == 'unique'
-        !non_unique_values[field_name].include?(value)
-      elsif value.respond_to?(keyword)
-        if validator.strip != keyword
-          start_of_args = validator.index(' ') + 1
-          args = eval("[ #{validator[start_of_args..200]} ]")
-          value.public_send(keyword, *args)
-        else
-          value.public_send(validator)
-        end
       else
-        value == validator
+        false
       end
     end
 
@@ -288,7 +287,7 @@ module FixedWidthFileValidator
           next
         end
 
-        # puts "#{Time.now} - #{@current_row}" if @current_row % 1000 == 0
+        puts "#{Time.now} - #{@current_row}" if @current_row % 1000 == 0
 
         yield line
 

@@ -40,14 +40,14 @@ common:
     width: 20
     starts_at: 70
     validate:
-    - "{ slice(0..1) == 'TW' }"
-    - "{ slice(2..100).numeric }"
+    - "^ slice(0..1) == 'TW'"
+    - "^ slice(2..100).numeric"
   - name: customer_acct_number
     width: 40
     starts_at: 90
     validate:
-    - "{ slice(0..1) == 'TW' }"
-    - "{ slice(2..100).numeric(16) }"
+    - "^ slice(0..1) == 'TW'"
+    - "^ slice(2..100).numeric(16)"
   - name: external_transaction_id
     width: 32
     starts_at: 130
