@@ -287,7 +287,7 @@ module FixedWidthFileValidator
           next
         end
 
-        puts "#{Time.now} - #{@current_row}" if @current_row % 1000 == 0
+        # puts "#{Time.now} - #{@current_row}" if @current_row % 1000 == 0
 
         yield line
 
