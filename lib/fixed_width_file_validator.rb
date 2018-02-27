@@ -228,12 +228,12 @@ module FixedWidthFileValidator
 
       value.extend(StringHelper)
 
-      keyword = validator.split(' ').first
+      keyword = validator.is_a?(String) ? validator.split(' ').first : ''
       if validator[0] == '{' && validator[-1] == '}'
         code = "lambda { |r| #{validator[1..-2]} }"
         value.instance_eval(code).call(record)
-      elsif validator[0] == '[' && validator[-1] == ']' # list of strings
-        eval(validator).include? value
+      elsif validator.is_a? Array
+        validator.include? value
       elsif validator == 'unique'
         !non_unique_values[field_name].include?(value)
       elsif value.respond_to?(keyword)

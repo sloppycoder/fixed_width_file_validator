@@ -115,12 +115,12 @@ tandem:
     width: 1
     starts_at: 181
     validate:
-    - "['M', 'D']"
+    - ['M', 'D']
   - name: sub_type
     width: 2
     starts_at: 182
     validate:
-    - "['N', 'DA', 'O']"
+    - ['N', 'DA', 'O']
   - name: category
     width: 1
     starts_at: 184
@@ -130,7 +130,7 @@ tandem:
     width: 1
     starts_at: 185
     validate:
-    - "['V', 'M', 'O']"
+    - ['V', 'M', 'O']
   - name: issuing_country
     width: 3
     starts_at: 202
@@ -155,7 +155,7 @@ tandem:
     width: 2
     starts_at: 296
     validate:
-    - "['00', '27', '11', '20']"
+    - ['00', '27', '11', '20']
   - name: pin_length
     width: 2
     starts_at: 306
@@ -175,17 +175,17 @@ tandem:
     width: 1
     starts_at: 317
     validate:
-    - "['Y', 'N']"
+    - ['Y', 'N']
   - name: plastic_issue_type
     width: 1
     starts_at: 374
     validate:
-    - "['R', 'I']"
+    - ['R', 'I']
   - name: incentive
     width: 1
     starts_at: 375
     validate:
-    - "['C', 'N']"
+    - ['C', 'N']
   - name: currency_code
     width: 3
     starts_at: 376
@@ -195,7 +195,7 @@ tandem:
     width: 13
     starts_at: 379
     validate:
-    - "['000001.000000', '1.000000']"
+    - ['000001.000000', '1.000000']
   - name: daily_cash_limit
     width: 10
     starts_at: 422
@@ -261,22 +261,22 @@ c400:
     width: 1
     starts_at: 181
     validate:
-    - "['C', 'P']"
+    - ['C', 'P']
   - name: sub_type
     width: 2
     starts_at: 182
     validate:
-    - "'O'"
+    - 'O'
   - name: category
     width: 1
     starts_at: 184
     validate:
-    - "['P', 'G', 'S']"
+    - ['P', 'G', 'S']
   - name: association
     width: 1
     starts_at: 185
     validate:
-    - "['V', 'M', 'O']"
+    - ['V', 'M', 'O']
   - name: issuing_country
     width: 3
     starts_at: 202
@@ -301,7 +301,7 @@ c400:
     width: 2
     starts_at: 296
     validate:
-    - "['00', '11', '40', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32']"
+    - ['00', '11', '40', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32']
   - name: pin_length
     width: 2
     starts_at: 306
@@ -316,12 +316,12 @@ c400:
     width: 1
     starts_at: 316
     validate:
-    - "['I', 'C']"
+    - ['I', 'C']
   - name: active_indicator
     width: 1
     starts_at: 317
     validate:
-    - "['Y', 'N']"
+    - ['Y', 'N']
   - name: plastic_issue_type
     width: 1
     starts_at: 374
@@ -331,7 +331,7 @@ c400:
     width: 1
     starts_at: 375
     validate:
-    - "'N'"
+    - 'N'
   - name: currency_code
     width: 3
     starts_at: 376
@@ -341,7 +341,7 @@ c400:
     width: 13
     starts_at: 379
     validate:
-    - "['000001.000000', '1.000000']"
+    - ['000001.000000', '1.000000']
   - name: daily_cash_limit
     width: 10
     starts_at: 422

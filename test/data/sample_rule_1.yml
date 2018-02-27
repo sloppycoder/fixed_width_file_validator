@@ -23,6 +23,6 @@ some_file_format:
     - width: 2
       validate:
         - width 2
-        - "['AA', 'BB', 'CC']"
+        - ['AA', 'BB', 'CC']
 
 
