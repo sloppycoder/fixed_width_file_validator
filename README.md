@@ -1,5 +1,6 @@
 # FixedWidthFileValidator
-Validation a fixed width text file based on configuration 
+
+Validation a fixed width text file based on configuration
 
 ## Installation
 
@@ -12,10 +13,6 @@ gem 'fixed_width_file_validator'
 And then execute:
 
     $ bundle
-
-Or install it yourself as:
-
-    $ gem install fixed_width_file_validator
 
 ## Usage
 
