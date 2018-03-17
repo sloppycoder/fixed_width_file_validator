@@ -1,7 +1,4 @@
-some_file_format:
-  validate:
-    width: 100
-  new_line_style: true
+common_fields:
   fields:
     - name: name
       width: 20
@@ -9,6 +6,13 @@ some_file_format:
       validate:
         - not_blank
         - "^ include?('LIN') ? left_justified : right_justified"
+
+test_format_1:
+  skip_top_lines: 1
+  skip_bottom_lines: 1
+  inherit_from: common_fields
+  new_line_style: true
+  fields:
     - name: phone
       width: 12
       validate:
