@@ -38,8 +38,13 @@ module FixedWidthFileValidator
       FixedWidthFileValidator::RecordValidator.new fields
     end
 
-    def create_record_validator_with_reader(file_reader)
-      FixedWidthFileValidator::RecordValidator.new fields, unique_fields, file_reader
+    def create_record_validator_with_reader(data_file_path)
+      # in this scenario the reader will read through the file to find unique values
+      # so we need to create a new reader and close it when done
+      reader = create_file_reader(data_file_path)
+      FixedWidthFileValidator::RecordValidator.new fields, unique_fields, reader
+    ensure
+      reader.close
     end
 
     private

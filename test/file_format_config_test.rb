@@ -1,8 +1,6 @@
 require_relative 'test_helper'
 
-class FileFormatConfigurationTest < Minitest::Test
-  def test_can_parse_sample_file
-    sample_config = %(
+SAMPLE_CONFIG = %(
 common_fields:
   fields:
     - name: name
@@ -32,9 +30,11 @@ test_format_1:
       validate:
         - width 2
         - ['AA', 'BB', 'CC']
-)
+).freeze
 
-    with_tmp_file_from_string(sample_config) do |config_file_path|
+class FileFormatConfigurationTest < Minitest::Test
+  def test_can_parse_sample_file
+    with_tmp_file_from_string(SAMPLE_CONFIG) do |config_file_path|
       format = FixedWidthFileValidator::FileFormat.for(:test_format_1, config_file_path)
 
       total_fields = 5

@@ -88,12 +88,15 @@ module FixedWidthFileValidator
   class RecordValidator
     attr_reader :bindings
 
-    def initialize(fields, _unique_field_list = nil, _reader = nil)
+    def initialize(fields, unique_field_list = nil, reader = nil)
       @field_validators = {}
       @bindings = {}
 
+      non_unique_values = reader.find_non_unique_values(unique_field_list)
+
       fields.each_key do |field_name|
         @field_validators[field_name] = FieldValidator.new(field_name, fields[field_name][:validations])
+        @field_validators[field_name].non_unique_values = non_unique_values[field_name] if unique_field_list.include?(field_name)
       end
     end
 
@@ -147,6 +150,18 @@ module FixedWidthFileValidator
       @file = nil
     end
 
+    def find_non_unique_values(field_list = [])
+      return if field_list.empty?
+
+      lookup_hash = build_unique_value_lookup_hash(field_list)
+
+      result = {}
+      field_list.each do |field_name|
+        result[field_name] = lookup_hash[field_name].select { |_k, v| v.count > 1 }
+      end
+      result
+    end
+
     private
 
     def readline_with_skip
@@ -184,60 +199,22 @@ module FixedWidthFileValidator
     def skip_bottom
       @skip_bottom_lines.times { buffer_line } if @buffer.empty?
     end
+
+    def build_unique_value_lookup_hash(field_list)
+      tmp_store = {}
+
+      each_record do |record|
+        field_list.each do |field_name|
+          tmp_store[field_name] ||= {}
+          tmp_store[field_name][record[field_name]] ||= []
+          tmp_store[field_name][record[field_name]] << @line_num
+        end
+      end
+
+      tmp_store
+    end
   end
 
   class LogStreamReader
   end
-
-  # def vali2date(data_file)
-  #   @data_file_path = data_file
-  #   @non_unique_values = find_non_unique_values
-  #
-  #   errors = []
-  #
-  #   each_line_in_data_file do |line|
-  #     record = parser.parse_line(line)
-  #     record.each_key do |field_name|
-  #       rule.field_validations(field_name).each do |validation|
-  #         begin
-  #           result = validator(field_name, validation, record)
-  #           errors << validation_error(line, record, field_name, validation, 'failed') unless result
-  #         rescue StandardError => e
-  #           errors << validation_error(line, record, field_name, validation, e)
-  #         end
-  #       end
-  #     end
-  #   end
-  #
-  #   # filter out the error from bottom lines we should ignore
-  #   # at this point current_row should be at last row + 1
-  #   errors.select {|err| err[:row_number] < @current_row - @skip_bottom_lines}
-  # end
-
-  # def find_non_unique_values
-  #   return if rule.unique_fields.empty?
-  #
-  #   lookup_hash = build_unique_value_lookup_hash
-  #
-  #   result = {}
-  #   rule.unique_fields.each do |field_name|
-  #     result[field_name] = lookup_hash[field_name].select {|_k, v| v.count > 1}
-  #   end
-  #   result
-  # end
-  #
-  # def build_unique_value_lookup_hash
-  #   tmp_store = {}
-  #
-  #   each_line_in_data_file do |line|
-  #     record = parser.parse_line(line)
-  #     rule.unique_fields.each do |field_name|
-  #       tmp_store[field_name] ||= {}
-  #       tmp_store[field_name][record[field_name]] ||= []
-  #       tmp_store[field_name][record[field_name]] << current_row
-  #     end
-  #   end
-  #
-  #   tmp_store
-  # end
 end
