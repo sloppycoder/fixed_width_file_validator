@@ -137,6 +137,7 @@ module FixedWidthFileValidator
     def each_record
       record = next_record
       until record.nil?
+        # puts "#{Time.now} at #{@line_num}" if @line_num % 10000 == 0
         yield record
         record = next_record
       end
