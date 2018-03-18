@@ -7,18 +7,7 @@ require 'string_helper'
 require 'file_format_config'
 
 module FixedWidthFileValidator
-  class Record
-    attr_accessor :_meta_
-
-    def initialize
-      @_meta_ = 1
-    end
-
-    def method_missing(m, *_args)
-      puts "There's no method called #{m} here -- please try again."
-    end
-  end
-
+  
   class RecordParser
     attr_reader :field_list, :encoding
 
@@ -46,6 +35,7 @@ module FixedWidthFileValidator
       @record = record
       @failed_field = field_name
       @failed_validation = validation
+      @failed_value = record[field_name]
     end
   end
 
@@ -70,9 +60,9 @@ module FixedWidthFileValidator
     # empty array if all validation passes
     def validate(record, field_name)
       if validations
-        validations.select do |validation|
+        validations.collect do |validation|
           FieldValidationError.new(validation, record, field_name) unless valid_value?(validation, record, field_name)
-        end
+        end.select {|err| err}
       elsif record && record[field_name]
         # when no validation rules exist for the field, just check if the field exists in the record
         []
@@ -131,6 +121,7 @@ module FixedWidthFileValidator
       @line_num = 0
       @buffer = []
       @parser = parser
+      @skip_top_done = false
     end
 
     def next_record
