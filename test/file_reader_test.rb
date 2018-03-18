@@ -80,11 +80,20 @@ class FileReaderTest < Minitest::Test
   private
 
   def read_first_and_last_lines(settings)
-    reader = FixedWidthFileValidator::FileReader.new('test/data/file_reader_test_1.txt', nil, settings)
+    sample_data = %{11111
+22222
+33333
+44444
+55555
+66666
+}
     first_line, last_line = nil, nil
-    reader.each_record do |line|
-      first_line = line if first_line.nil?
-      last_line = line
+    with_tmp_file_from_string(sample_data) do |data_file_path|
+      reader = FixedWidthFileValidator::FileReader.new(data_file_path, nil, settings)
+      reader.each_record do |line|
+        first_line = line if first_line.nil?
+        last_line = line
+      end
     end
     [first_line, last_line]
   end

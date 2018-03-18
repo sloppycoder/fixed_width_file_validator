@@ -9,3 +9,14 @@ else
 end
 
 require 'minitest/autorun'
+require 'tempfile'
+
+def with_tmp_file_from_string(content)
+  tmp_file = Tempfile.new('fixed_width_file_validator_test')
+  tmp_file.write(content)
+  tmp_file.close
+
+  yield tmp_file.path
+  
+  tmp_file.unlink
+end
