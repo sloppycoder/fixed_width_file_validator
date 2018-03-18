@@ -27,8 +27,8 @@ module FixedWidthFileValidator
       @encoding = encoding || 'ISO-8859-1'
     end
 
-    def parse(line, line_num)
-      record = { _line_num: line_num }
+    def parse(line, line_num, raw_line)
+      record = { _line_num: line_num, _raw: raw_line }
       encoded = line.encode(@encoding, 'binary', invalid: :replace, undef: :replace)
       field_list.each do |field|
         record[field[:name].to_sym] = encoded[field[:position]].nil? ? nil : encoded[field[:position]].strip
@@ -140,7 +140,7 @@ module FixedWidthFileValidator
     def next_record
       line_num, content = readline_with_skip
       return unless line_num
-      @parser ? @parser.parse(content, line_num) : content.strip
+      @parser ? @parser.parse(content, line_num, content) : content.strip
     end
 
     def each_record

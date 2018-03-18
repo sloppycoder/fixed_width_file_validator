@@ -66,6 +66,17 @@ class FileReaderTest < Minitest::Test
     assert first.nil?
   end
 
+  def test_can_parse_sample_data_file
+    format = FixedWidthFileValidator::FileFormat.for(:test_format_1, 'test/data/sample_format_1.yml')
+    reader = FixedWidthFileValidator::FileReader.new('test/data/test_data_1.txt', format.record_parser, format.file_settings)
+    records = []
+    reader.each_record { |record| records << record }
+
+    assert records.size == 4
+    assert records.first[:_line_num] == 2
+    assert records.first[:name] == 'LI LIN'
+  end
+
   private
 
   def read_first_and_last_lines(settings)

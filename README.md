@@ -16,7 +16,7 @@ And then execute:
 
 ## Usage
 
-See [sameple configuration for details](test/data/sample_rule_1.yml)
+See [sameple configuration for details](test/data/sample_format_1.yml)
 
 ## Contributing
 

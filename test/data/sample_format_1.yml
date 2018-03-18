@@ -15,6 +15,7 @@ test_format_1:
   fields:
     - name: phone
       width: 12
+      starts_at: 21
       validate:
         - start_with? '60'
         - unique
