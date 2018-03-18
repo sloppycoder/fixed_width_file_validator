@@ -24,6 +24,7 @@ module FixedWidthFileValidator
       end
 
       load_config(@record_type)
+      find_unique_fields
     end
 
     def field_validations(field_name)
@@ -62,21 +63,23 @@ module FixedWidthFileValidator
       field_name = field_config[:name] || "field_#{@column}"
       start_column = field_config[:starts_at] || @column
       end_column = start_column + width - 1
+      validations = field_config[:validate]
+      validations = [ validations ] unless validations.is_a?(Array)
 
       {
         field_name: field_name,
         start_column: start_column,
         end_column: end_column,
-        validations: field_config[:validate]
+        validations: validations
       }
     end
 
-    # def find_unique_fields
-    #   fields.each do |field_name, field_rule|
-    #     next if field_rule[:validations].select {|v| v == 'unique'}.empty?
-    #     unique_fields << field_name
-    #   end
-    # end
+    def find_unique_fields
+      fields.each do |field_name, field_rule|
+        next if field_rule[:validations].select { |v| v == 'unique' }.empty?
+        unique_fields << field_name
+      end
+    end
 
     def parser_params(field_name)
       f = fields[field_name]
@@ -91,9 +94,9 @@ module FixedWidthFileValidator
 
       if inherit_format
         inherit_config = @raw_config[inherit_format]
-        inheirt_fields = inherit_config ? inherit_config[:fields] : []
+        inherit_fields = inherit_config ? inherit_config[:fields] : []
 
-        inheirt_fields.each do |field|
+        inherit_fields.each do |field|
           format_fields << field if format_fields.select { |f| f[:name] == field[:name] }.empty?
         end
       end
