@@ -7,7 +7,6 @@ require 'string_helper'
 require 'file_format_config'
 
 module FixedWidthFileValidator
-  
   class RecordParser
     attr_reader :field_list, :encoding
 
@@ -27,7 +26,7 @@ module FixedWidthFileValidator
   end
 
   class FieldValidationError
-    attr_reader :raw, :record, :field_name, :line_num, :failed_value, :failed_validation
+    attr_reader :raw, :record, :line_num, :failed_field, :failed_value, :failed_validation
 
     def initialize(validation, record, field_name)
       @raw = record[:_raw]
@@ -40,29 +39,21 @@ module FixedWidthFileValidator
   end
 
   class FieldValidator
-    attr_accessor :record_type, :field_name, :non_unique_values, :validations
+    attr_accessor :field_name, :non_unique_values, :validations
 
-    @field_validators = {}
-
-    # not threadsafe
-    def self.for(record_type, field_name)
-      @field_validators[:field_name] ||= FieldValidator.new(record_type, field_name)
-    end
-
-    def initialize(record_type, field_name, validations = nil)
-      self.record_type = record_type
+    def initialize(field_name, validations = nil)
       self.field_name = field_name
       self.non_unique_values = []
-      self.validations = validations || FileFormat.for(record_type).field_validations(field_name)
+      self.validations = validations
     end
 
     # return an array of error objects
     # empty array if all validation passes
-    def validate(record, field_name)
+    def validate(record, field_name, bindings = {})
       if validations
         validations.collect do |validation|
-          FieldValidationError.new(validation, record, field_name) unless valid_value?(validation, record, field_name)
-        end.select {|err| err}
+          FieldValidationError.new(validation, record, field_name) unless valid_value?(validation, record, field_name, bindings)
+        end.compact
       elsif record && record[field_name]
         # when no validation rules exist for the field, just check if the field exists in the record
         []
@@ -71,7 +62,7 @@ module FixedWidthFileValidator
       end
     end
 
-    def valid_value?(validation, record, field_name)
+    def valid_value?(validation, record, field_name, _bindings)
       value = record[field_name]
       if value.nil?
         false
@@ -95,19 +86,29 @@ module FixedWidthFileValidator
   end
 
   class RecordValidator
-    attr_reader :record_type
+    attr_reader :bindings
 
-    # # not threadsafe
-    # def self.for(record_type)
-    #   @@record_validators ||=  {}
-    #   @@record_validators[record_type] ||=  RecordValidator.new(record_type)
-    # end
+    def initialize(fields, _unique_field_list = nil, _reader = nil)
+      @field_validators = {}
+      @bindings = {}
+
+      fields.each_key do |field_name|
+        @field_validators[field_name] = FieldValidator.new(field_name, fields[field_name][:validations])
+      end
+    end
 
     def validate(record)
+      errors = @field_validators.collect do |field, validator|
+        validator.validate(record, field, @bindings)
+      end
+      errors.reject(&:empty?)
+    end
+
+    def find_all_errors(file_reader)
       errors = []
-      record.each_key do |field_name|
-        result = FieldValidator.for(record_type, field_name).validate(record, field_name)
-        errors << result if result
+      file_reader.each_record do |record|
+        e = validate(record)
+        errors << e unless e.empty?
       end
       errors.flatten
     end
@@ -239,5 +240,4 @@ module FixedWidthFileValidator
   #
   #   tmp_store
   # end
-
 end

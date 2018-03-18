@@ -1,6 +1,5 @@
 TOP_SHOULD_BE_SKIPPED
 LI LIN              601117758888 LI LIN IS HERE                                   XYZAA
               Random60311223344 whateveRandomsh                                   XYZBB
-   
               Mister60311223344 something Mister                                  XYZDD
 BOTTOM_SHOULD_BE_SKIPPED

@@ -1,7 +1,6 @@
 require_relative 'test_helper'
 
 class FieldValidatorTest < Minitest::Test
-
   def test_validation_errors
     value = 'abcdef'
     errors = validate_simple_value(['not_blank', 'width 3', 'numeric'], value)
@@ -9,7 +8,6 @@ class FieldValidatorTest < Minitest::Test
     assert_instance_of  FixedWidthFileValidator::FieldValidationError, errors.first
     assert_equal value, errors.first.failed_value
   end
-
 
   def test_can_validate_string_methods
     assert_empty validate_simple_value(['not_blank', 'width 3'], 'abc')
@@ -21,10 +19,12 @@ class FieldValidatorTest < Minitest::Test
     refute_empty validate_simple_value(['mama'], 'mama mia')
   end
 
+  # rubocop:disable Style/WordArray
   def test_can_validate_string_in_list
     assert_empty validate_simple_value([['A', 'BB', 'CCC']], 'BB')
     refute_empty validate_simple_value([['A', 'BB', 'CCC']], 'DDDD')
   end
+  # rubocop:enable Style/WordArray
 
   def test_can_validate_date_time
     assert_empty validate_simple_value(['date'], '20180318')
@@ -51,12 +51,12 @@ class FieldValidatorTest < Minitest::Test
   private
 
   def validate_simple_value(validations, value)
-    validator = FixedWidthFileValidator::FieldValidator.new(:test_record, :value, validations)
+    validator = FixedWidthFileValidator::FieldValidator.new(:value, validations)
     validator.validate({ value: value }, :value)
   end
 
   def validate_record(validations, record, field_name)
-    validator = FixedWidthFileValidator::FieldValidator.new(:test_record, field_name, validations)
+    validator = FixedWidthFileValidator::FieldValidator.new(field_name, validations)
     validator.validate(record, field_name)
   end
 end

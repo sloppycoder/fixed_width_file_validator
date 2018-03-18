@@ -13,7 +13,6 @@ else
   require 'byebug'
 end
 
-
 require 'minitest/autorun'
 require 'tempfile'
 

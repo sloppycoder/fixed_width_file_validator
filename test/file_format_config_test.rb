@@ -2,7 +2,7 @@ require_relative 'test_helper'
 
 class FileFormatConfigurationTest < Minitest::Test
   def test_can_parse_sample_file
-    sample_config = %{
+    sample_config = %(
 common_fields:
   fields:
     - name: name
@@ -10,7 +10,6 @@ common_fields:
       starts_at: 1
       validate:
         - not_blank
-        - "^ include?('LIN') ? left_justified : right_justified"
 
 test_format_1:
   skip_top_lines: 1
@@ -33,14 +32,13 @@ test_format_1:
       validate:
         - width 2
         - ['AA', 'BB', 'CC']
-}
+)
 
     with_tmp_file_from_string(sample_config) do |config_file_path|
       format = FixedWidthFileValidator::FileFormat.for(:test_format_1, config_file_path)
 
       total_fields = 5
       assert_equal total_fields, format.fields.size, 'inherit_from did not work'
-      assert_equal total_fields, format.record_parser.field_list.size
       assert format.field_validations(:phone).include? 'unique'
       assert_instance_of Array, format.field_validations(:field_86)
       assert_instance_of Array, format.field_validations(:field_83)

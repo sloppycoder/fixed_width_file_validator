@@ -18,7 +18,6 @@ module FixedWidthFileValidator
       @column = 1
       @config_file = config_file
 
-      @config_file ||= record_type.split('-').first + '.yml'
       File.open(@config_file) do |f|
         @raw_config = symbolize(YAML.safe_load(f, [], [], true))
       end
@@ -31,16 +30,22 @@ module FixedWidthFileValidator
       fields[field_name]&.fetch :validations
     end
 
-    def record_parser
-      @parser ||= RecordParser.new(@parser_field_list, file_settings[:encoding])
+    def create_file_reader(data_file_path)
+      FixedWidthFileValidator::FileReader.new(data_file_path, record_parser, file_settings)
+    end
+
+    def create_record_validator
+      FixedWidthFileValidator::RecordValidator.new fields
+    end
+
+    def create_record_validator_with_reader(file_reader)
+      FixedWidthFileValidator::RecordValidator.new fields, unique_fields, file_reader
     end
 
     private
 
-    def symbolize(obj)
-      return obj.each_with_object({}) { |(k, v), memo| memo[k.to_sym] = symbolize(v); } if obj.is_a? Hash
-      return obj.each_with_object([]) { |v, memo| memo << symbolize(v); } if obj.is_a? Array
-      obj
+    def record_parser
+      @parser ||= RecordParser.new(@parser_field_list, file_settings[:encoding])
     end
 
     def load_config(record_type)
@@ -64,7 +69,7 @@ module FixedWidthFileValidator
       start_column = field_config[:starts_at] || @column
       end_column = start_column + width - 1
       validations = field_config[:validate]
-      validations = [ validations ] unless validations.is_a?(Array)
+      validations = [validations] unless validations.is_a?(Array)
 
       {
         field_name: field_name,
@@ -102,6 +107,12 @@ module FixedWidthFileValidator
       end
 
       format_config
+    end
+
+    def symbolize(obj)
+      return obj.each_with_object({}) { |(k, v), memo| memo[k.to_sym] = symbolize(v); } if obj.is_a? Hash
+      return obj.each_with_object([]) { |v, memo| memo << symbolize(v); } if obj.is_a? Array
+      obj
     end
   end
 end

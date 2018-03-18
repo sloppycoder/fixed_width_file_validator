@@ -5,7 +5,7 @@ common_fields:
       starts_at: 1
       validate:
         - not_blank
-        - "^ include?('LIN') ? left_justified : right_justified"
+#        - "^ include?('LIN') ? width  : right_justified"
 
 test_format_1:
   skip_top_lines: 1
