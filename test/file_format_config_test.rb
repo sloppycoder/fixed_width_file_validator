@@ -39,13 +39,13 @@ test_format_1:
       format = FixedWidthFileValidator::FileFormat.for(:test_format_1, config_file_path)
 
       total_fields = 5
-      assert format.fields.size == total_fields # inherit_from works
-      assert format.record_parser.field_list.size == total_fields
+      assert_equal total_fields, format.fields.size, 'inherit_from did not work'
+      assert_equal total_fields, format.record_parser.field_list.size
       assert format.field_validations(:phone).include? 'unique'
-      assert format.field_validations(:field_86).is_a? Array
-      assert format.field_validations(:field_83).is_a? Array
-      assert format.field_validations(:field_83).first == 'XYZ'
-      assert format.field_validations(:non_existent).nil?
+      assert_instance_of Array, format.field_validations(:field_86)
+      assert_instance_of Array, format.field_validations(:field_83)
+      assert_equal 'XYZ', format.field_validations(:field_83).first
+      assert_nil format.field_validations(:non_existent)
     end
   end
 end
