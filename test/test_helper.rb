@@ -1,3 +1,8 @@
+require 'simplecov'
+SimpleCov.start do
+  add_filter %r{^/test/}
+end
+
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'fixed_width_file_validator'
 
@@ -8,6 +13,7 @@ else
   require 'byebug'
 end
 
+
 require 'minitest/autorun'
 require 'tempfile'
 
@@ -17,6 +23,6 @@ def with_tmp_file_from_string(content)
   tmp_file.close
 
   yield tmp_file.path
-  
+
   tmp_file.unlink
 end

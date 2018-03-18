@@ -9,4 +9,5 @@ group :development, :test do
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
   gem 'pry', platforms: %i[jruby]
   gem 'pry-debugger-jruby', platforms: %i[jruby]
+  gem 'simplecov'
 end

@@ -4,10 +4,6 @@ module FixedWidthFileValidator
       true
     end
 
-    def text
-      is_a? String
-    end
-
     def blank
       strip.empty?
     end
