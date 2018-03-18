@@ -27,8 +27,8 @@ module FixedWidthFileValidator
       @encoding = encoding || 'ISO-8859-1'
     end
 
-    def parse(line)
-      record = {}
+    def parse(line, line_num)
+      record = { _line_num: line_num }
       encoded = line.encode(@encoding, 'binary', invalid: :replace, undef: :replace)
       field_list.each do |field|
         record[field[:name].to_sym] = encoded[field[:position]].nil? ? nil : encoded[field[:position]].strip
@@ -127,6 +127,80 @@ module FixedWidthFileValidator
     end
   end
 
+  class FileReader
+    def initialize(file_name, parser = nil, settings = {})
+      @skip_top_lines = settings[:skip_top_lines] || 0
+      @skip_bottom_lines = settings[:skip_bottom_lines] || 0
+      @data_file_path = file_name
+      @line_num = 0
+      @buffer = []
+      @parser = parser
+    end
+
+    def next_record
+      line_num, content = readline_with_skip
+      return unless line_num
+      @parser ? @parser.parse(content, line_num) : content.strip
+    end
+
+    def each_record
+      record = next_record
+      until record.nil?
+        yield record
+        record = next_record
+      end
+    ensure
+      close
+    end
+
+    def close
+      @file&.close
+    ensure
+      @file = nil
+    end
+
+    private
+
+    def readline_with_skip
+      @file ||= File.open(@data_file_path, 'r')
+      skip_top
+      skip_bottom
+      readline
+    end
+
+    def readline
+      return nil if @file.eof?
+
+      buffer_line
+      @buffer.shift
+    end
+
+    def next_line
+      return nil if @file.eof?
+      @line_num += 1
+      [@line_num, @file.readline]
+    end
+
+    def buffer_line
+      return nil if @file.eof?
+      @buffer << next_line
+    end
+
+    def skip_top
+      return if @skip_top_done
+
+      @skip_top_lines.times { next_line }
+      @skip_top_done = true
+    end
+
+    def skip_bottom
+      @skip_bottom_lines.times { buffer_line } if @buffer.empty?
+    end
+  end
+
+  class LogStreamReader
+  end
+
   # def vali2date(data_file)
   #   @data_file_path = data_file
   #   @non_unique_values = find_non_unique_values
@@ -151,8 +225,6 @@ module FixedWidthFileValidator
   #   # at this point current_row should be at last row + 1
   #   errors.select {|err| err[:row_number] < @current_row - @skip_bottom_lines}
   # end
-
-  private
 
   # def find_non_unique_values
   #   return if rule.unique_fields.empty?
@@ -181,25 +253,4 @@ module FixedWidthFileValidator
   #   tmp_store
   # end
 
-  def each_line_in_data_file
-    file = File.open(@data_file_path)
-    @current_row = 1
-
-    until file.eof?
-      line = file.readline
-
-      if @current_row <= @skip_top_lines || line.chomp.strip.empty?
-        @current_row += 1
-        next
-      end
-
-      # puts "#{Time.now} - #{@current_row}" if @current_row % 1000 == 0
-
-      yield line
-
-      @current_row += 1
-    end
-  ensure
-    file.close
-  end
 end
