@@ -38,18 +38,14 @@ module FixedWidthFileValidator
   end
 
   class FieldValidationError
-    def initialize(validation, record, _field_name)
-      @x = 1
-      error_field_value = record[error_field_name]
-      {
-        record: record,
-        error_field_name: error_field_name,
-        error_field_value: error_field_value,
-        validation: validation,
-        error: error,
-        row_number: current_row,
-        source_line: line
-      }
+    attr_reader :raw, :record, :field_name, :line_num, :failed_value, :failed_validation
+
+    def initialize(validation, record, field_name)
+      @raw = record[:_raw]
+      @line_num = record[:_line_num]
+      @record = record
+      @failed_field = field_name
+      @failed_validation = validation
     end
   end
 
@@ -63,15 +59,15 @@ module FixedWidthFileValidator
       @field_validators[:field_name] ||= FieldValidator.new(record_type, field_name)
     end
 
-    def initialize(record_type, field_name)
+    def initialize(record_type, field_name, validations = nil)
       self.record_type = record_type
       self.field_name = field_name
       self.non_unique_values = []
-      self.validations = FileFormat.for(record_type).field_validations(field_name)
+      self.validations = validations || FileFormat.for(record_type).field_validations(field_name)
     end
 
     # return an array of error objects
-    # nil if all validation passes
+    # empty array if all validation passes
     def validate(record, field_name)
       if validations
         validations.select do |validation|
@@ -79,7 +75,7 @@ module FixedWidthFileValidator
         end
       elsif record && record[field_name]
         # when no validation rules exist for the field, just check if the field exists in the record
-        nil
+        []
       else
         raise "found field value nil in #{record} field #{field_name}, shouldn't be possible?"
       end
