@@ -13,15 +13,18 @@ class RuleParserTest < Minitest::Test
   end
 
   def test_can_parse_c400_sample_file
-    skip
+    # skip
     puts "Start: #{Time.now}"
-    data_file_path = '/Users/lee/tmp/CRTRAN25AEC40012052017193043.txt'
+    data_file_path = 'c:/Users/1468331/tmp/CRTRAN25AEC40012052017193043.txt'
     format = FixedWidthFileValidator::FileFormat.for(:tandem, 'test/data/pis12.yml')
     reader = format.create_file_reader(data_file_path)
     validator = format.create_record_validator_with_reader(data_file_path)
     errors = validator.find_all_errors(reader)
-    puts "End: #{Time.now}"
+    other_errors = errors.reject { |r| r.failed_validation == 'unique' }
 
-    assert errors.count
+    puts "End: #{Time.now}"
+    puts "other errors #{other_errors.size}"
+
+    assert_equal 1_734_074, errors.count
   end
 end
