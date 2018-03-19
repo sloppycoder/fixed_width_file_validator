@@ -10,3 +10,5 @@
 .idea/
 .ruby-version
 .byebug_history
+*.out
+

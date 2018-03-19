@@ -41,8 +41,8 @@ module FixedWidthFileValidator
   class FieldValidator
     attr_accessor :field_name, :non_unique_values, :validations
 
-    @tokens_cache = {}
-    
+    @@token_cache = {}
+
     def initialize(field_name, validations = nil)
       self.field_name = field_name
       self.non_unique_values = []
@@ -64,13 +64,14 @@ module FixedWidthFileValidator
       end
     end
 
+    private
+
     def valid_value?(validation, record, field_name, _bindings)
       value = record[field_name]
       if value.nil?
         false
       elsif validation.is_a? String
-        tokens = Ripper.tokenize(validation)
-        keyword = tokens.first
+        keyword = keyword_for(validation)
         if validation == 'unique'
           !non_unique_values.include?(value)
         elsif validation == keyword && value.respond_to?(keyword)
@@ -89,6 +90,11 @@ module FixedWidthFileValidator
       else
         raise "Unknown validation #{validation} for #{record_type}/#{field_name}"
       end
+    end
+
+    def keyword_for(validation)
+      @@token_cache[validation] ||= Ripper.tokenize(validation).first
+      @@token_cache[validation]
     end
   end
 
@@ -144,7 +150,7 @@ module FixedWidthFileValidator
     def each_record
       record = next_record
       until record.nil?
-        puts "#{Time.now} at #{@line_num}" if @line_num % 10000 == 0
+        # puts "#{Time.now} at #{@line_num}" if @line_num % 10000 == 0
         yield record
         record = next_record
       end
