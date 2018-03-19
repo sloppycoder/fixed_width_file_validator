@@ -15,7 +15,7 @@ class RuleParserTest < Minitest::Test
   def test_can_parse_c400_sample_file
     # skip
     puts "Start: #{Time.now}"
-    data_file_path = 'c:/Users/1468331/tmp/CRTRAN25AEC40012052017193043.txt'
+    data_file_path = ENV['HOME'] + '/tmp/CRTRAN25AEC40012052017193043.txt'
     format = FixedWidthFileValidator::FileFormat.for(:tandem, 'test/data/pis12.yml')
     reader = format.create_file_reader(data_file_path)
     validator = format.create_record_validator_with_reader(data_file_path)
