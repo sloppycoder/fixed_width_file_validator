@@ -1,6 +1,8 @@
-require 'simplecov'
-SimpleCov.start do
-  add_filter %r{^/test/}
+if ENV['COVERAGE'] == '1'
+  require 'simplecov'
+  SimpleCov.start do
+    add_filter %r{^/test/}
+  end
 end
 
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
