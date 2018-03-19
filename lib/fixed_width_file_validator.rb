@@ -38,6 +38,7 @@ module FixedWidthFileValidator
     end
   end
 
+  # rubocop:disable Style/ClassVars
   class FieldValidator
     attr_accessor :field_name, :non_unique_values, :validations
 
@@ -97,6 +98,7 @@ module FixedWidthFileValidator
       @@token_cache[validation]
     end
   end
+  # rubocop:enable Style/ClassVars
 
   class RecordValidator
     attr_reader :bindings

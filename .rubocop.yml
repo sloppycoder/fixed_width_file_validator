@@ -11,7 +11,10 @@ Metrics/ClassLength:
   Max: 101
 
 Metrics/CyclomaticComplexity:
-  Max: 9
+  Max: 20
+
+Metrics/PerceivedComplexity:
+  Max: 12
 
 Metrics/LineLength:
   Max: 130
@@ -21,10 +24,6 @@ Metrics/AbcSize:
 
 Metrics/MethodLength:
   Max: 30
-
-Metrics/PerceivedComplexity:
-  Max: 11
-
 
 Security/Eval:
   Enabled: false
