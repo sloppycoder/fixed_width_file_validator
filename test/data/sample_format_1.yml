@@ -25,6 +25,7 @@ test_format_1:
     - width: 3
       validate:
         - 'XYZ'
+        - '^ include? _g[:secret]'
     - width: 2
       validate:
         - width 2

@@ -67,7 +67,7 @@ module FixedWidthFileValidator
 
     private
 
-    def valid_value?(validation, record, field_name, _bindings)
+    def valid_value?(validation, record, field_name, bindings)
       value = record[field_name]
       if value.nil?
         false
@@ -81,8 +81,8 @@ module FixedWidthFileValidator
           value.public_send(validation)
         elsif keyword == '^' || value.respond_to?(keyword)
           validation = validation[1..-1] if keyword == '^'
-          code = "lambda { |r| #{validation} }"
-          value.instance_eval(code).call(record)
+          code = "lambda { |r, _g| #{validation} }"
+          value.instance_eval(code).call(record, bindings)
         else
           value == validation
         end
@@ -101,7 +101,7 @@ module FixedWidthFileValidator
   # rubocop:enable Style/ClassVars
 
   class RecordValidator
-    attr_reader :bindings
+    attr_accessor :bindings
 
     def initialize(fields, unique_field_list = nil, reader = nil)
       @field_validators = {}

@@ -39,6 +39,12 @@ class FieldValidatorTest < Minitest::Test
     assert_empty validate_simple_value(['^ slice(0..0) == "S" && slice(1..-1) == "CB" '], 'SCB')
   end
 
+  def test_can_validate_lambda_with_binding
+    bindings = {val: 100, country: 'MY'}
+    assert_empty validate_simple_value(['^ to_i > _g[:val]'], '101', bindings)
+    assert_empty validate_simple_value(['^ slice(0..1) == _g[:country]'], 'MYSG123', bindings)
+  end
+
   def test_can_validate_lambda_with_record
     validations = ['^ include? r[:name]']
     record1 = { name: 'LI LIN', full_name: 'LI LIN THE GEEK' }
@@ -50,13 +56,13 @@ class FieldValidatorTest < Minitest::Test
 
   private
 
-  def validate_simple_value(validations, value)
+  def validate_simple_value(validations, value, bindings = {})
     validator = FixedWidthFileValidator::FieldValidator.new(:value, validations)
-    validator.validate({ value: value }, :value)
+    validator.validate({ value: value }, :value, bindings)
   end
 
-  def validate_record(validations, record, field_name)
+  def validate_record(validations, record, field_name, bindings = {})
     validator = FixedWidthFileValidator::FieldValidator.new(field_name, validations)
-    validator.validate(record, field_name)
+    validator.validate(record, field_name, bindings)
   end
 end
