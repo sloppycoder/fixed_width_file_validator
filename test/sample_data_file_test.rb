@@ -9,9 +9,14 @@ class SampleDataFileTest < Minitest::Test
 
     errors = validator.find_all_errors(reader)
     other_errors = errors.reject { |r| r.failed_validation == 'unique' }
-    non_unique_errors = errors.select { |r| r.failed_validation == 'unique' }
+    unique_errors = errors.select { |r| r.failed_validation == 'unique' }
+
+    unless errors.empty?
+      formatter = FixedWidthFileValidator::TextReportFormatter.new
+      errors.each { |err| formatter.write(err) }
+    end
 
     assert_equal 1, other_errors.size
-    assert_equal '60311223344', non_unique_errors.first.failed_value
+    assert_equal '60311223344', unique_errors.first.failed_value
   end
 end

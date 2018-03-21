@@ -2,28 +2,32 @@ require 'ripper'
 
 module FixedWidthFileValidator
   class FieldValidationError
-    attr_reader :raw, :record, :line_num, :failed_field, :failed_value, :failed_validation
+    attr_reader :raw, :record, :line_num, :failed_field, :failed_value, :failed_validation, :pos, :width
 
-    def initialize(validation, record, field_name)
+    def initialize(validation, record, field_name, pos, width)
       @raw = record[:_raw]
       @line_num = record[:_line_num]
       @record = record
       @failed_field = field_name
       @failed_validation = validation
       @failed_value = record[field_name]
+      @pos = pos
+      @width = width
     end
   end
 
   # rubocop:disable Style/ClassVars
   class FieldValidator
-    attr_accessor :field_name, :non_unique_values, :validations
+    attr_accessor :field_name, :non_unique_values, :validations, :pos, :width
 
     @@token_cache = {}
 
-    def initialize(field_name, validations = nil)
+    def initialize(field_name, pos, width, validations = nil)
       self.field_name = field_name
       self.non_unique_values = []
       self.validations = validations
+      self.pos = pos
+      self.width = width
     end
 
     # return an array of error objects
@@ -31,7 +35,9 @@ module FixedWidthFileValidator
     def validate(record, field_name, bindings = {})
       if validations
         validations.collect do |validation|
-          FieldValidationError.new(validation, record, field_name) unless valid_value?(validation, record, field_name, bindings)
+          unless valid_value?(validation, record, field_name, bindings)
+            FieldValidationError.new(validation, record, field_name, pos, width)
+          end
         end.compact
       elsif record && record[field_name]
         # when no validation rules exist for the field, just check if the field exists in the record
@@ -85,8 +91,10 @@ module FixedWidthFileValidator
 
       non_unique_values = reader.find_non_unique_values(unique_field_list)
 
-      fields.each_key do |field_name|
-        @field_validators[field_name] = FieldValidator.new(field_name, fields[field_name][:validations])
+      fields.each do |field_name, conf|
+        pos = conf[:start_column]
+        width = conf[:end_column] - pos + 1
+        @field_validators[field_name] = FieldValidator.new(field_name, pos, width, fields[field_name][:validations])
         @field_validators[field_name].non_unique_values = non_unique_values[field_name] if unique_field_list.include?(field_name)
       end
     end

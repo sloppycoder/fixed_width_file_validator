@@ -57,12 +57,12 @@ class FieldValidatorTest < Minitest::Test
   private
 
   def validate_simple_value(validations, value, bindings = {})
-    validator = FixedWidthFileValidator::FieldValidator.new(:value, validations)
+    validator = FixedWidthFileValidator::FieldValidator.new(:value, 1, 1, validations)
     validator.validate({ value: value }, :value, bindings)
   end
 
   def validate_record(validations, record, field_name, bindings = {})
-    validator = FixedWidthFileValidator::FieldValidator.new(field_name, validations)
+    validator = FixedWidthFileValidator::FieldValidator.new(field_name, 1, 1, validations)
     validator.validate(record, field_name, bindings)
   end
 end
