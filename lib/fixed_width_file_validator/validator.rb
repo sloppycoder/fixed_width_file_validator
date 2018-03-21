@@ -103,16 +103,24 @@ module FixedWidthFileValidator
       errors = @field_validators.collect do |field, validator|
         validator.validate(record, field, @bindings)
       end
-      errors.reject(&:empty?)
+      errors.reject(&:empty?).flatten
+    end
+
+    def each_error(file_reader)
+      file_reader.each_record do |record|
+        errors = validate(record)
+        errors.each do |err|
+          yield err
+        end
+      end
     end
 
     def find_all_errors(file_reader)
       errors = []
-      file_reader.each_record do |record|
-        e = validate(record)
-        errors << e unless e.empty?
+      each_error(file_reader) do |err|
+        errors << err
       end
-      errors.flatten
+      errors
     end
   end
 end
