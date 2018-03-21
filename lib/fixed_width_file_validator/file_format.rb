@@ -1,3 +1,9 @@
+require 'fixed_width_file_validator/file_reader'
+require 'fixed_width_file_validator/validator'
+require 'fixed_width_file_validator/record_parser'
+
+require 'yaml'
+
 module FixedWidthFileValidator
   class FileFormat
     attr_reader :record_type, :fields, :unique_fields, :file_settings
@@ -50,7 +56,9 @@ module FixedWidthFileValidator
     private
 
     def record_parser
+      # rubocop:disable Naming/MemoizedInstanceVariableName
       @parser ||= RecordParser.new(@parser_field_list, file_settings[:encoding])
+      # rubocop:enable Naming/MemoizedInstanceVariableName
     end
 
     def load_config(record_type)

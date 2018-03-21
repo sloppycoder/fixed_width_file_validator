@@ -40,7 +40,7 @@ class FieldValidatorTest < Minitest::Test
   end
 
   def test_can_validate_lambda_with_binding
-    bindings = {val: 100, country: 'MY'}
+    bindings = { val: 100, country: 'MY' }
     assert_empty validate_simple_value(['^ to_i > _g[:val]'], '101', bindings)
     assert_empty validate_simple_value(['^ slice(0..1) == _g[:country]'], 'MYSG123', bindings)
   end

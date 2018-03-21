@@ -1,3 +1,6 @@
+require 'date'
+require 'time'
+
 module FixedWidthFileValidator
   module StringHelper
     def any
@@ -12,8 +15,8 @@ module FixedWidthFileValidator
       !blank
     end
 
-    def width(w)
-      size == w
+    def width(num)
+      size == num
     end
 
     def date_time(format = '%Y%m%d%H%M%S')

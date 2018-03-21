@@ -5,7 +5,7 @@ if ENV['COVERAGE'] == '1'
   end
 end
 
-$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+$LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 require 'fixed_width_file_validator'
 
 if RUBY_PLATFORM == 'java'
