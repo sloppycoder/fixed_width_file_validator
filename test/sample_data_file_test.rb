@@ -11,11 +11,27 @@ class SampleDataFileTest < Minitest::Test
     other_errors = errors.reject { |r| r.failed_validation == 'unique' }
     unique_errors = errors.select { |r| r.failed_validation == 'unique' }
 
-    # formatter = FixedWidthFileValidator::TextReportFormatter.new
-    # errors.each { |err| formatter.write(err) } unless errors.empty?
-    # formatter.write_unique_errors(unique_errors) unless unique_errors.empty?
-
     assert_equal 1, other_errors.size
     assert_equal '60311223344', unique_errors.first.failed_value
+
+    formatter = FixedWidthFileValidator::TextReportFormatter.new
+
+    Tempfile.open('test_err_file') do |err_f|
+      errors.each { |err| formatter.write(err, err_f) } unless errors.empty?
+
+      err_f.seek(0)
+      first_line = err_f.readline
+
+      assert first_line.include? '00003:'
+    end
+
+    Tempfile.open('test_err_file') do |err_f|
+      formatter.write_unique_errors(unique_errors, err_f)
+
+      err_f.seek(0)
+      first_line = err_f.readline
+
+      assert first_line.include? '00003'
+    end
   end
 end

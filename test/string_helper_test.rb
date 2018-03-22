@@ -21,6 +21,9 @@ class StringHelperTest < Minitest::Test
     refute ''.numeric
     refute 'abc'.numeric
 
+    assert '100'.positive
+    refute '-100'.positive
+
     assert ''.width(0)
     assert 'ABCC DEF'.width(8)
 
