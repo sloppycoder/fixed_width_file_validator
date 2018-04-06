@@ -70,7 +70,3 @@ module FixedWidthFileValidator
     end
   end
 end
-
-class String
-  include FixedWidthFileValidator::StringHelper
-end

@@ -8,6 +8,10 @@ end
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 require 'fixed_width_file_validator'
 
+class String
+  include FixedWidthFileValidator::StringHelper
+end
+
 if RUBY_PLATFORM == 'java'
   require 'pry'
   require 'pry-debugger-jruby'
