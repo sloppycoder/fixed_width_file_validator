@@ -8,7 +8,7 @@ Style/FrozenStringLiteralComment:
   Enabled: false
 
 Metrics/ClassLength:
-  Max: 101
+  Max: 130
 
 Metrics/CyclomaticComplexity:
   Max: 20

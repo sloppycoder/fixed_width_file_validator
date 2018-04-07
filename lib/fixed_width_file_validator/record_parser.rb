@@ -7,7 +7,7 @@ module FixedWidthFileValidator
       @encoding = encoding || 'ISO-8859-1'
     end
 
-    def parse(line, line_num, raw_line)
+    def parse(line, line_num = 0, raw_line = '_NA_')
       record = { _line_num: line_num, _raw: raw_line }
       encoded = line.encode(@encoding, 'binary', invalid: :replace, undef: :replace)
       field_list.each do |field|

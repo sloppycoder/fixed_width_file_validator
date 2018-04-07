@@ -18,6 +18,7 @@ test_format_1:
     - name: phone
       width: 12
       starts_at: 21
+      format: '%05d'
       validate:
         - start_with? '60'
         - unique
@@ -37,6 +38,7 @@ class FileFormatConfigurationTest < Minitest::Test
     with_tmp_file_from_string(SAMPLE_CONFIG) do |config_file_path|
       format = FixedWidthFileValidator::FileFormat.for(:test_format_1, config_file_path)
 
+
       total_fields = 5
       assert_equal total_fields, format.fields.size, 'inherit_from did not work'
       assert format.field_validations(:phone).include? 'unique'
@@ -44,6 +46,9 @@ class FileFormatConfigurationTest < Minitest::Test
       assert_instance_of Array, format.field_validations(:field_83)
       assert_equal 'XYZ', format.field_validations(:field_83).first
       assert_nil format.field_validations(:non_existent)
+
+      record_formatter = format.record_formatter
+      assert_equal '%05d', record_formatter.instance_variable_get('@field_list').at(1)[:format]
     end
   end
 end

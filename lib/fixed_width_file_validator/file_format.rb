@@ -1,6 +1,7 @@
 require 'fixed_width_file_validator/file_reader'
 require 'fixed_width_file_validator/validator'
 require 'fixed_width_file_validator/record_parser'
+require 'fixed_width_file_validator/record_formatter'
 
 require 'yaml'
 
@@ -20,6 +21,7 @@ module FixedWidthFileValidator
       @fields = {}
       @unique_fields = []
       @parser_field_list = []
+      @formatter_field_list = []
       @file_settings = {}
       @column = 1
       @config_file = config_file
@@ -53,13 +55,15 @@ module FixedWidthFileValidator
       reader.close
     end
 
-    private
+    def record_formatter
+      @record_formatter ||= RecordFormatter.new(@formatter_field_list, file_settings[:encoding])
+    end
 
     def record_parser
-      # rubocop:disable Naming/MemoizedInstanceVariableName
-      @parser ||= RecordParser.new(@parser_field_list, file_settings[:encoding])
-      # rubocop:enable Naming/MemoizedInstanceVariableName
+      @record_parser ||= RecordParser.new(@parser_field_list, file_settings[:encoding])
     end
+
+    private
 
     def load_config(record_type)
       format_config = config_for(record_type)
@@ -68,6 +72,7 @@ module FixedWidthFileValidator
         key = field_config[:field_name].to_sym
         @fields[key] = field_config
         @parser_field_list << parser_params(key)
+        @formatter_field_list << formatter_params(key)
         @column = fields[key][:end_column] + 1
       end
       @file_settings = { skip_top_lines: format_config[:skip_top_lines] || 0,
@@ -83,12 +88,14 @@ module FixedWidthFileValidator
       end_column = start_column + width - 1
       validations = field_config[:validate]
       validations = [validations] unless validations.is_a?(Array)
+      format = field_config[:format] || "%-#{width}s" # defaults to left aligned text
 
       {
         field_name: field_name,
         start_column: start_column,
         end_column: end_column,
-        validations: validations
+        validations: validations,
+        output_format: format
       }
     end
 
@@ -103,6 +110,11 @@ module FixedWidthFileValidator
       f = fields[field_name]
       # in config file column starts with 1 but when parsing line begins at 0
       { name: field_name, position: (f[:start_column] - 1..f[:end_column] - 1) }
+    end
+
+    def formatter_params(field_name)
+      f = fields[field_name]
+      { name: field_name, position: f[:start_column], width: f[:end_column] - f[:start_column] + 1, format: f[:output_format] }
     end
 
     def config_for(record_type)
