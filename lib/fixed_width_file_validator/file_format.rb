@@ -26,8 +26,13 @@ module FixedWidthFileValidator
       @column = 1
       @config_file = config_file
 
-      File.open(@config_file) do |f|
-        @raw_config = symbolize(YAML.safe_load(f, [], [], true))
+      if @config_file.is_a?(String)
+        File.open(@config_file) do |f|
+          @raw_config = symbolize(YAML.safe_load(f, [], [], true))
+        end
+      else
+        # config_file must be an IO object
+        @raw_config = symbolize(YAML.safe_load(config_file, [], [], true))
       end
 
       load_config(@record_type)

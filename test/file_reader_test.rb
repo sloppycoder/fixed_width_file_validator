@@ -89,12 +89,10 @@ class FileReaderTest < Minitest::Test
 )
     first_line = nil
     last_line = nil
-    with_tmp_file_from_string(sample_data) do |data_file_path|
-      reader = FixedWidthFileValidator::FileReader.new(data_file_path, nil, settings)
-      reader.each_record do |line|
-        first_line = line if first_line.nil?
-        last_line = line
-      end
+    reader = FixedWidthFileValidator::FileReader.new(StringIO.new(sample_data), nil, settings)
+    reader.each_record do |line|
+      first_line = line if first_line.nil?
+      last_line = line
     end
     [first_line, last_line]
   end

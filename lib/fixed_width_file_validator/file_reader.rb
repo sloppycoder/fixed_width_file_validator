@@ -1,13 +1,13 @@
 module FixedWidthFileValidator
   class FileReader
-    def initialize(file_name, parser = nil, settings = {})
+    def initialize(data_file, parser = nil, settings = {})
       @skip_top_lines = settings[:skip_top_lines] || 0
       @skip_bottom_lines = settings[:skip_bottom_lines] || 0
-      @data_file_path = file_name
       @line_num = 0
       @buffer = []
       @parser = parser
       @skip_top_done = false
+      @data_file = data_file
     end
 
     def next_record
@@ -47,8 +47,17 @@ module FixedWidthFileValidator
 
     private
 
+    def open_data_file
+      @file = if @data_file.is_a?(String)
+                File.open(@data_file, 'r')
+              else
+                # assume data_file is an IO object
+                @data_file
+              end
+    end
+
     def readline_with_skip
-      @file ||= File.open(@data_file_path, 'r')
+      @file ||= open_data_file
       skip_top
       skip_bottom
       readline

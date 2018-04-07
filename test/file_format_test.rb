@@ -9,7 +9,7 @@ common_fields:
       validate:
         - not_blank
 
-test_format_1:
+test_format:
   skip_top_lines: 1
   skip_bottom_lines: 1
   inherit_from: common_fields
@@ -35,20 +35,16 @@ test_format_1:
 
 class FileFormatConfigurationTest < Minitest::Test
   def test_can_parse_sample_file
-    with_tmp_file_from_string(SAMPLE_CONFIG) do |config_file_path|
-      format = FixedWidthFileValidator::FileFormat.for(:test_format_1, config_file_path)
+    format = FixedWidthFileValidator::FileFormat.for(:test_format, StringIO.new(SAMPLE_CONFIG))
 
+    total_fields = 5
+    assert_equal total_fields, format.fields.size, 'inherit_from did not work'
+    assert format.field_validations(:phone).include? 'unique'
+    assert_instance_of Array, format.field_validations(:field_86)
+    assert_instance_of Array, format.field_validations(:field_83)
+    assert_equal 'XYZ', format.field_validations(:field_83).first
+    assert_nil format.field_validations(:non_existent)
 
-      total_fields = 5
-      assert_equal total_fields, format.fields.size, 'inherit_from did not work'
-      assert format.field_validations(:phone).include? 'unique'
-      assert_instance_of Array, format.field_validations(:field_86)
-      assert_instance_of Array, format.field_validations(:field_83)
-      assert_equal 'XYZ', format.field_validations(:field_83).first
-      assert_nil format.field_validations(:non_existent)
-
-      record_formatter = format.record_formatter
-      assert_equal '%05d', record_formatter.instance_variable_get('@field_list').at(1)[:format]
-    end
+    assert_equal '%05d', format.record_formatter.instance_variable_get('@field_list').at(1)[:format]
   end
 end
