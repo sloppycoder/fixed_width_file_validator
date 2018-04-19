@@ -13,7 +13,7 @@ module FixedWidthFileValidator
     def next_record
       line_num, content = readline_with_skip
       return unless line_num
-      @parser ? @parser.parse(content, line_num, content) : content.strip
+      @parser ? @parser.parse(content, line_num, content) : content.chop
     end
 
     def each_record
